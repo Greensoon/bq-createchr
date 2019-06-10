@@ -1,0 +1,26 @@
+{
+    "name": "bqcrx",
+    "manifest_version": 2,
+    "description": "create chrome extend plugin",
+    "version": "1.0",
+    "homepage_url": "http://hao8v.net",
+    "icons": {
+        "16": "img/app.png",
+        "48": "img/app.png",
+        "128": "img/app.png"
+    },
+    "scriptsAndCss": [{
+        "js": ["./src/index.js"],
+        "position": "document_start"
+    }],
+    "background": {
+        "scripts": ["./src/background.js"]
+    },
+    "opentab": true,
+    "browser_action": 
+    {
+        "icon": "img/icon.png",
+        "title": "电影巷Chrome插件测试",
+        "popup": "index.html"
+    }
+}
