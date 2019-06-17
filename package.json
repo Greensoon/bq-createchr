@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=development nodemon ./build/start.js",
-    "build": "NODE_ENV=production node ./build/start.js"
+    "start": "nodemon ./build/start.js --mode development",
+    "build": "node ./build/start.js --mode production"
   },
   "author": "Jimpai",
   "license": "ISC",

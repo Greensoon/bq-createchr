@@ -16,7 +16,7 @@
     "background": {
         "scripts": ["./src/background.js"]
     },
-    "opentab": true,
+    "opentab": "newtab.html",
     "browser_action": 
     {
         "icon": "img/icon.png",
