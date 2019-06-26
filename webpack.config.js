@@ -5,7 +5,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const MiniCss = require('mini-css-extract-plugin');
 
 const minicss = new MiniCss({
-    filename: 'css/app.css?v=[hash:6]'
+    filename: 'style.css?v=[hash:6]'
 })
 const WebpackCopy = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -31,8 +31,9 @@ $pages.forEach(function(e) {
     )
 })
 
-const entries = {
-}
+const enters = require('./entry.js')
+
+const entries = enters.server || {}
 
 const manifest = require('./manifest.json')
 const jsAndCss = manifest.scriptsAndCss
@@ -60,6 +61,56 @@ if(!Object.keys(entries).length) {
     return false
 }
 
+const clientConfig = {
+    entry: enters.client,
+    output: {
+        filename: 'client.bundle.js?v=[hash:6]',
+        publicPath: '',
+        path: path.resolve(__dirname, env === 'development' ? 'tmp/' : 'dist/')
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                loader: 'babel-loader?cacheDirectory=true',
+                exclude: [/node_modules/],
+                options: {
+                    presets: ['@babel/preset-env']
+                }
+            },
+            {
+                test: /\.vue$/,
+                use: [
+                    'vue-loader'
+                ]
+            },
+            {
+                test: /\.css$/,
+                use: [MiniCss.loader, 'css-loader']
+            },
+            {
+                test: /\.less$/,
+                use: [MiniCss.loader, 'css-loader', 'less-loader' ]
+            }, {
+                test: /\.(woff|woff2|ttf|eot|svg)$/,
+                loader: 'file-loader?name=fonts/[name].[ext]'
+            },
+            {
+                test: /\.html$/,
+                use: {
+                    loader: 'html-loader',
+                    options: {
+                      interpolate: true
+                    }
+                }
+            }
+        ]
+    },
+    plugins: [
+        minicss,
+    ]
+}
+
 const config = {
     entry: entries,
     output: {
@@ -74,33 +125,10 @@ const config = {
             options: {
                 presets: ['@babel/preset-env']
             }
-        }, {
-            test: /\.(png|je?pg|gif|bmp)$/,
-            loader: 'url-loader?name=img/[name].[ext]&limit=10000'
-        },{
-            test: /\.css$/,
-            use: [MiniCss.loader, 'css-loader']
-        },
-        {
-            test: /\.less$/,
-            use: [MiniCss.loader, 'css-loader', 'less-loader' ]
-        }, {
-            test: /\.(woff|woff2|ttf|eot|svg)$/,
-            loader: 'file-loader?name=fonts/[name].[ext]'
-        },
-        {
-            test: /\.html$/,
-            use: {
-                loader: 'html-loader',
-                options: {
-                  interpolate: true
-                }
-            }
         }]
     },
     plugins: [
         new CleanWebpackPlugin(),
-        minicss,
         new WebpackCopy([
             {from: 'assets', to: path.resolve(__dirname, env === 'development' ? 'tmp/' : 'dist/')}
         ]),
@@ -110,6 +138,8 @@ const config = {
     devtool: 'none'
 }
 
-config.plugins = config.plugins.concat(htmlTpls)
+clientConfig.plugins = clientConfig.plugins.concat(htmlTpls)
 
-module.exports = config
+// console.log(clientConfig)
+
+module.exports = [clientConfig, config]
