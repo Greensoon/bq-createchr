@@ -1,11 +1,11 @@
 const path = require('path')
 var fs = require('fs')
-
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const MiniCss = require('mini-css-extract-plugin');
 
 const minicss = new MiniCss({
-    filename: 'style.css?v=[hash:6]'
+    filename: 'style.css'
 })
 const WebpackCopy = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -16,7 +16,7 @@ var htmlTpls = [];
 $pages.forEach(function(e) {
     htmlTpls.push(
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, './src/pages/' + e),
+            template: './src/pages/' + e,
             inject: 'body',
             filename: e,
             minify: {
@@ -36,6 +36,7 @@ const enters = require('./entry.js')
 const entries = enters.server || {}
 
 const manifest = require('./manifest.json')
+// content资源
 const jsAndCss = manifest.scriptsAndCss
 if(jsAndCss) {
     jsAndCss.forEach(function(e) {
@@ -46,26 +47,31 @@ if(jsAndCss) {
     })
 }
 
+// background
 var background = manifest.background
 if(background && background.scripts && background.scripts.length) {
     entries.background = background.scripts
 }
 
+// 需要注入的脚本
 const injects = manifest.injects
 if(injects) {
     entries.injects = injects
 }
 
+// 出口文件
 if(!Object.keys(entries).length) {
     console.log(' ====>>> 需要给出入口文件')
     return false
 }
 
+var c = Object.assign({}, entries)
+c.client = enters.client
+// 客户端配置
 const clientConfig = {
-    entry: enters.client,
+    entry: c,
     output: {
-        filename: 'client.bundle.js?v=[hash:6]',
-        publicPath: '',
+        filename: '[name].js',
         path: path.resolve(__dirname, env === 'development' ? 'tmp/' : 'dist/')
     },
     module: {
@@ -94,52 +100,56 @@ const clientConfig = {
             }, {
                 test: /\.(woff|woff2|ttf|eot|svg)$/,
                 loader: 'file-loader?name=fonts/[name].[ext]'
-            },
-            {
-                test: /\.html$/,
-                use: {
-                    loader: 'html-loader',
-                    options: {
-                      interpolate: true
-                    }
-                }
             }
         ]
     },
-    plugins: [
-        minicss,
-    ]
-}
-
-const config = {
-    entry: entries,
-    output: {
-        path: path.resolve(__dirname, env === 'development' ? './tmp': './dist'),
-        filename: '[name].js'
-    },
-    module: {
-        rules: [{
-            test: /\.js$/,
-            loader: 'babel-loader?cacheDirectory=true',
-            exclude: [/node_modules/],
-            options: {
-                presets: ['@babel/preset-env']
-            }
-        }]
+    resolve: {
+        extensions: ['.js', '.vue'],
+        alias: {
+            'vue$': 'vue/dist/vue.js'
+        }
     },
     plugins: [
         new CleanWebpackPlugin(),
+        new VueLoaderPlugin(),
+        minicss,
         new WebpackCopy([
             {from: 'assets', to: path.resolve(__dirname, env === 'development' ? 'tmp/' : 'dist/')}
         ]),
     ],
     mode: 'development',
-    target: 'node',
-    devtool: 'none'
+    devtool: 'none',
+    devServer: {
+        port: 3000
+    }
 }
+
+// const config = {
+//     entry: entries,
+//     output: {
+//         path: path.resolve(__dirname, env === 'development' ? './tmp': './dist'),
+//         filename: '[name].js'
+//     },
+//     module: {
+//         rules: [{
+//             test: /\.js$/,
+//             loader: 'babel-loader?cacheDirectory=true',
+//             exclude: [/node_modules/],
+//             options: {
+//                 presets: ['@babel/preset-env']
+//             }
+//         }]
+//     },
+//     plugins: [
+//         new WebpackCopy([
+//             {from: 'assets', to: path.resolve(__dirname, env === 'development' ? 'tmp/' : 'dist/')}
+//         ]),
+//     ],
+//     mode: 'development',
+//     target: 'node',
+//     devtool: 'none'
+// }
 
 clientConfig.plugins = clientConfig.plugins.concat(htmlTpls)
 
-// console.log(clientConfig)
-
-module.exports = [clientConfig, config]
+module.exports = [clientConfig]

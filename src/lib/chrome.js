@@ -1,12 +1,11 @@
 // const chrome = {}
-
 const contextMenus = {}
 // 右键菜单
 export function contextMenu(config) {
     config = config || {}
     contextMenus.title = config.showSelect ? config.title + ': %s' : config.title
     config.showSelect ? (contextMenus.contexts = ['selection']) : null
-    contextMenus.onclick=config.onclick
+    contextMenus.onclick = config.onclick
 
     return chrome.contextMenus.create(contextMenus)
 }

@@ -1,4 +1,4 @@
 const path = require('path')
-module.export = {
-    client: path.join(__dirname, './src/main.js'),
+module.exports = {
+    client: './src/main.js'
 }

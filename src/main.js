@@ -1,8 +1,9 @@
 import Vue from 'vue'
-// import './style/index.less'
-import Head from './client/components/Head'
+import './css/new-tab.less'
+import App from './client/App.vue'
+import ElementUI from 'element-ui'
+Vue.use(ElementUI)
 
-Vue.component('lsbHead', Head)
 new Vue({
-    el: '#bqapp'
-})
+    render: h => h(App)
+}).$mount('#bqapp')

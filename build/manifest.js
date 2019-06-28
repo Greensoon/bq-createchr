@@ -24,6 +24,8 @@ const defaultConfig = {
     icons: {16: "img/app.png", 48: "img/app.png", 128: "img/app.png"}
 }
 
+const unsafe = {"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"}
+
 var injects =  {
     "web_accessible_resources": []
 }
@@ -146,6 +148,7 @@ module.exports = function() {
     const pathname = env === 'development' ? path.resolve(__dirname, '../tmp/') : path.resolve(__dirname, '../dist/')
     const filename = '/manifest.json'
 
+    config.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'",
     jsonfile.writeFile(pathname + filename, config, null, function(err) {
         if(err) console.log('=====>>> make manifest.json error: ', err)
         console.log('======>>> : manifest.json build success : <<<======')

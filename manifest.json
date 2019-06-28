@@ -11,6 +11,7 @@
     },
     "scriptsAndCss": [{
         "js": ["./src/index.js"],
+        "css": ["style.css"],
         "position": "document_start"
     }],
     "background": {
